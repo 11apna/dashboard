@@ -8,31 +8,21 @@
 <style>
 body{
     margin:0;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family:"Segoe UI",Arial,sans-serif;
     background:#080b12;
     color:white;
-    padding:90px 14px 40px;
+    padding:20px 14px 40px;
 }
 
-}
-.brand-box{display: flex;align-items:center;gap:8px;}
-.brand-img{width:115px;filter: drop-shadow(0 0 10px rgba(255,255,255,0.4));}
-.pro-badge{background:linear-gradient(90deg,#ff006a,#ff7e00);padding:3px 10px;border-radius:8px;color:#fff;font-size:13px;font-weight:700;}
-.user-name{position:absolute;left:50%;transform:translateX(-50%);font-size:15px;font-weight:700;color:#fff;text-transform:capitalize;}
-.wallet-btn{
-  background:linear-gradient(90deg,rgba(0,255,209,0.22),rgba(122,95,255,0.22));
-  padding:8px 14px;border-radius:12px;font-size:14px;font-weight:700;
-  border:1px solid rgba(255,255,255,0.1);color:#fff;
-}
-
-/* MAIN HEADING */
+/* TITLE */
 h2{
     text-align:center;
-    margin:20px 0 10px;
+    margin:10px 0 20px;
+    font-size:20px;
     opacity:.9;
 }
 
-/* HISTORY BOX */
+/* HISTORY LIST */
 .history-list{
     display:flex;
     flex-direction:column;
@@ -47,7 +37,7 @@ h2{
 }
 .item-title{
     font-size:15px;
-    font-weight:600;
+    font-weight:700;
     margin-bottom:6px;
 }
 .item-team{
@@ -59,6 +49,21 @@ h2{
     opacity:.6;
 }
 
+/* SEE RESULT BTN */
+.result-btn{
+    margin-top:10px;
+    width:100%;
+    border:0;
+    padding:10px;
+    font-weight:700;
+    border-radius:8px;
+    background:linear-gradient(90deg,#0058ff,#00eaff);
+    color:white;
+    cursor:pointer;
+}
+.result-btn:active{transform:scale(.94);}
+
+/* EMPTY */
 .empty{
     text-align:center;
     opacity:.7;
@@ -66,8 +71,9 @@ h2{
     font-size:15px;
 }
 
+/* CLEAR BUTTON */
 .clear-btn{
-    margin-top:18px;
+    margin-top:22px;
     width:100%;
     padding:12px;
     border:0;
@@ -78,43 +84,95 @@ h2{
     font-weight:700;
     cursor:pointer;
 }
-.clear-btn:active{transform:scale(.96);}
+.clear-btn:active{transform:scale(.95);}
+
+/* POPUP */
+.popup-overlay{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,0.55);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    backdrop-filter: blur(5px);
+    z-index:9999999;
+}
+.popup-box{
+    width:80%;max-width:360px;
+    background:#121520;
+    border-radius:12px;
+    padding:20px;
+    text-align:center;
+    border:1px solid rgba(255,255,255,0.1);
+    animation:pop .3s ease;
+}
+.popup-box h3{
+    margin:0 0 10px;
+    color:#ff5252;
+}
+.popup-btns{
+    margin-top:15px;
+    display:flex;
+    gap:10px;
+}
+.pbtn{
+    flex:1;
+    padding:10px;
+    border-radius:8px;
+    border:0;
+    font-weight:700;
+    cursor:pointer;
+}
+.no-btn{
+    background:#2b2b2b;color:#ccc;
+}
+.yes-btn{
+    background:#ff4747;color:white;
+}
+
+@keyframes pop{
+    from{transform:scale(.7);opacity:0;}
+    to{transform:scale(1);opacity:1;}
+}
 </style>
 </head>
 <body>
-
-
 
 <h2>Your Bet History</h2>
 
 <div id="historyBox" class="history-list"></div>
 
-<button class="clear-btn" onclick="clearHistory()">Clear Bet History</button>
+<button class="clear-btn" onclick="openClearPopup()">Clear Bet History</button>
+
+
+<!-- POPUP -->
+<div class="popup-overlay" id="clearPop">
+  <div class="popup-box">
+    <h3>Clear All History?</h3>
+    <p>This action cannot be undone.</p>
+    <div class="popup-btns">
+        <button class="pbtn no-btn" onclick="closeClearPopup()">Cancel</button>
+        <button class="pbtn yes-btn" onclick="clearHistory()">Delete</button>
+    </div>
+  </div>
+</div>
 
 <script>
-function loadUser(){
-  const uname = localStorage.getItem("APP_USER") || "Guest";
-  const bal = Number(localStorage.getItem("APP_BALANCE") || 0);
-
-  document.getElementById("userName").innerText = uname;
-  document.getElementById("walletBtn").innerText = "₹" + bal;
-}
-loadUser();
-
-// LOAD HISTORY
+// SHOW HISTORY
 function loadHistory(){
     let list = JSON.parse(localStorage.getItem("BET_HISTORY") || "[]");
     const box = document.getElementById("historyBox");
 
     if(list.length === 0){
-        box.innerHTML = `<p class="empty">No bets placed yet.</p>`;
+        box.innerHTML = `<p class="empty">No bet records found.</p>`;
         return;
     }
 
-    // Latest first
-    list.reverse();
+    list.reverse(); // latest first
 
     list.forEach(b=>{
+        let cleanTeam = b.team.replace("(Black)","").replace("(Blue)","").trim();
+        let linkParam = cleanTeam.toLowerCase();
+
         let div = document.createElement("div");
         div.className = "item";
 
@@ -122,24 +180,35 @@ function loadHistory(){
             <div class="item-title">Bet: ₹${b.amount}</div>
             <div class="item-team">${b.team}</div>
             <div class="item-time">${b.time}</div>
+
+            <button class="result-btn" onclick="location.href='/result-${linkParam}'">
+                See Result
+            </button>
         `;
         box.appendChild(div);
     });
 }
-
 loadHistory();
+
+
+// POPUP OPEN/CLOSE
+function openClearPopup(){
+   document.getElementById("clearPop").style.display = "flex";
+}
+function closeClearPopup(){
+   document.getElementById("clearPop").style.display = "none";
+}
 
 // CLEAR HISTORY
 function clearHistory(){
-    if(confirm("Delete all bet records?")){
-        localStorage.removeItem("BET_HISTORY");
-        location.reload();
-    }
+    localStorage.removeItem("BET_HISTORY");
+    location.reload();
 }
 </script>
 
 </body>
 </html>
+
 
 <!-- Floating Top Bar -->
 <div class="killer-top-bar">
