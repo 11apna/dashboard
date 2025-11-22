@@ -14,16 +14,6 @@ body{
     padding:90px 14px 40px;
 }
 
-/* TOP BAR */
-.killer-top-bar{
-  position: fixed;top: 14px;left: 50%;transform: translateX(-50%);
-  width: calc(100% - 32px);max-width: 760px;height: 62px;
-  background: linear-gradient(180deg, rgba(10,12,20,0.85), rgba(12,14,24,0.6));
-  border-radius: 16px;border: 1px solid rgba(255,255,255,0.05);
-  backdrop-filter: blur(8px) saturate(120%);
-  display: flex;align-items: center;justify-content: space-between;
-  padding: 0 14px;box-shadow: 0 10px 26px rgba(0,0,0,0.45);
-  z-index: 9999999;
 }
 .brand-box{display: flex;align-items:center;gap:8px;}
 .brand-img{width:115px;filter: drop-shadow(0 0 10px rgba(255,255,255,0.4));}
@@ -93,17 +83,7 @@ h2{
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="killer-top-bar">
-  <div class="brand-box">
-    <img src="https://d13ir53smqqeyp.cloudfront.net/d11-static-pages/images/dream11LogoWhite.webp" class="brand-img">
-    <span class="pro-badge">PRO</span>
-  </div>
 
-  <span id="userName" class="user-name"></span>
-
-  <button id="walletBtn" class="wallet-btn">₹0</button>
-</div>
 
 <h2>Your Bet History</h2>
 
